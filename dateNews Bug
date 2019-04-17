@@ -85,8 +85,11 @@ public class dataNewsBug {
 	 			 String re2 = sm[1][m];
 	 			 String re3 = sm[2][m];
 	 			 String re4 = sm[3][m];
+				 if(re4.length()>10000) {
+	 				re4=re4.substring(1,999);
+	 			 }
 	 			statement.executeUpdate("insert into result (title,time,site,text) values('"+re1+"','"+re2+"','"+re3+"','"+re4+"')");  
-	 			 System.out.println(m+re1+re2+re3+re4);
+	 			 
 	 			 
 	 					}
 	 		 	 i=0;
