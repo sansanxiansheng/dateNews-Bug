@@ -1,4 +1,4 @@
-//省去import
+//省去import等信息
 public class dataNewsBug { 
 	 static  String SendGet(String url){
 		  String result = "";
