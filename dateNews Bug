@@ -1,0 +1,129 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.select.Selector;
+
+public class BasicTest1 { 
+	 static  String SendGet(String url){
+		  String result = "";
+		  BufferedReader in = null;
+		  		try {
+		  				URL URL = new URL(url);
+		  				URLConnection connection = URL.openConnection();
+		  				connection.connect();
+		  					in = new BufferedReader(new InputStreamReader(
+		  							connection.getInputStream(),StandardCharsets.UTF_8));
+		  					String line;
+		  						while ((line = in.readLine()) != null) {
+		  							result += line;
+		   }
+		  } catch (Exception e) {
+		//   System.out.println("发送GET请求出现异常！" + e);
+		  // e.printStackTrace();
+		   return  result = "页面无法找到，可能是因为被删除了";
+		  }finally {
+			  	try {
+			  		if (in != null) {
+			  			in.close();
+			  		}
+			  	} catch (Exception e2) {
+			  		e2.printStackTrace();
+		   }
+		  }
+		  return result;
+		 }
+	 			static void DiguiBug(String url,String[][]sm) throws SQLException {
+	 				Connection con;
+	 				String driver = "com.mysql.jdbc.Driver";
+	 				try {
+          //注：新版jdbc要在地址后加入?useSSL=false&serverTimezone=GMT
+	 					con = DriverManager.getConnection("在这里输入您的数据库地址","数据库账号","数据库密码");
+	 					if(!con.isClosed())
+	 						System.out.println("连接成功！");
+	 					//创建statement对象
+	 					java.sql.Statement statement = con.createStatement();
+	 					statement.executeUpdate("create table IF NOT EXISTS result(id int auto_increment , title varchar(100),time varchar(20),site varchar(100),text varchar(5000),PRIMARY KEY(id))"); 
+	 					String result = SendGet(url);
+	 					Document doc = Jsoup.parse(result);
+	 					String nextU=null;
+	 					Elements diyiceng = doc.select("h3");
+	 					Elements dierceng = doc.select("span.sp");
+	 					Elements disanceng = diyiceng.select("a");
+	 					if( doc.select("a.snext")!=null) {
+	 					Elements disiceng = doc.select("a#snext");
+	 					
+	 					nextU= disiceng.attr("href");}
+	 					int i = 0;
+	 					int q = 0;
+	 					int e = 0;
+	 					
+	 					for (Element diyiceng_1 : diyiceng) {
+	 						  	sm[0][i] = diyiceng_1.text();
+	 						  	i++;
+	 						}
+	 					for (Element dierceng_1 :dierceng) {
+	 						sm[1][e] = dierceng_1.text();
+	 						e++;
+	 					}
+	 					for(Element disanceng_1 :disanceng) {
+	 						sm[2][q] =disanceng_1.attr("href");
+	 						q++;
+	 					}
+	 					for(int x = 0;x<=99;x++) {
+	 						String url_1 = sm[2][x];
+	 						String wenben = SendGet(url_1);
+	 						Document doc_1 = Jsoup.parse(wenben);
+	 						
+	 						if(doc_1.selectFirst("div.pages_content")!=null) {
+	 						String zhengwen = doc_1.selectFirst("div.pages_content").text();
+	 						sm[3][x]=x+zhengwen;
+	 						}
+	 						else {
+	 							sm[3][x]=x+"不是文本";
+	 						}
+	 						
+	 					}
+	 					
+	 		 for(int m = 0;m<=99;m++) {
+	 			 String re1 = sm[0][m];
+	 			 String re2 = sm[1][m];
+	 			 String re3 = sm[2][m];
+	 			 String re4 = sm[3][m];
+	 			statement.executeUpdate("insert into result (title,time,site,text) values('"+re1+"','"+re2+"','"+re3+"','"+re4+"')");  
+	 			 System.out.println(m+re1+re2+re3+re4);
+	 			 
+	 					}
+	 		 	 i=0;
+	 			 e=0;
+	 			 q=0;
+	 			 if(nextU!=null) {
+	 				 System.out.println(nextU);
+	 				 DiguiBug(nextU,sm);
+	 			 }
+	 				}
+	 				finally {
+          }
+	 			
+			
+		}
+		public static void main(String[] args) throws SQLException {
+			String[][] sm = new String[4][100];
+			DiguiBug("http://sousuo.gov.cn/s.htm?t=govall&advance=true&sort=&orpro=&andpro=%E9%87%8D%E5%A4%A7+%E4%BA%8B%E6%95%85&notpro=&inpro=&colid=&pubmintimeYear=2000&pubmintimeMonth=1&pubmaxtimeYear=2019&pubmaxtimeMonth=4&searchfield=&n=100",sm);
+			}
+			
+		}
+
+		
